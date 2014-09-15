@@ -72,7 +72,7 @@ class My_Custom_Job_Manager_Content {
 		add_filter( 'submit_job_form_fields_get_job_data', array( $this, 'form_fields_get_job_data' ), 10, 2 );
 		add_filter( 'job_manager_job_listing_data_fields', array( $this, 'job_listing_data_fields' ) );
 		add_action( 'single_job_listing_meta_end', array( $this, 'display_custom_property_type' ) );
-		add_action( 'submit_job_form_job_fields_end', array( $this, 'add_property_fileds_to_submit', 11 ) );
+		add_action( 'submit_job_form_job_fields_end', array( $this, 'add_property_fields_to_submit' ), 11 );
 
 		$this->load_textdomain();
 	}
@@ -136,6 +136,8 @@ class My_Custom_Job_Manager_Content {
 	 * @since 1.0
 	 */
 	function form_fields( $fields ) {
+		$fields[ 'property' ] = array();
+
 	  	$fields[ 'property' ][ 'property_type' ] = array(
 			'label'       => __( 'Property Type', 'job_manager' ),
 			'type'        => 'select',
@@ -159,7 +161,7 @@ class My_Custom_Job_Manager_Content {
 		);
 
 		return $fields;
-	  
+
 	}
 
 	/**
@@ -190,7 +192,7 @@ class My_Custom_Job_Manager_Content {
 		$term   = get_term_by( 'slug', $property, 'job_listing_property_type' );
 
 		wp_set_post_terms( $job_id, array( $term->term_id ), 'job_listing_property_type', false );
-	  
+
 	}
 
 
@@ -205,9 +207,9 @@ class My_Custom_Job_Manager_Content {
 
 		if ( ! is_singular( 'job_listing' ) )
 			exit;
-		
+
 		$terms = wp_get_post_terms( $post->ID, 'job_listing_property_type' );
-		
+
 		if ( is_wp_error( $terms ) || empty( $terms ) )
 			exit;
 
@@ -218,9 +220,9 @@ class My_Custom_Job_Manager_Content {
 			echo '<li>' . __( 'Property Type:' ) . ' ' . $propertyname . '</li>';
 	}
 
-	function add_property_fileds_to_submit( $fields ) {
+	function add_property_fields_to_submit( $fields ) {
 
-		$property_fields = WP_Job_Manager_Form_Submit_Job::$fields['property'];
+		$property_fields = WP_Job_Manager_Form_Submit_Job::get_fields('property');
 
 		if ( $property_fields ) : ?>
 			<h2><?php _e( 'Property Details', 'wp-job-manager' ); ?></h2>
